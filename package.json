@@ -2,10 +2,14 @@
   "name": "mongod",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "mocha server/**",
     "test-watch": "nodemon --exec 'npm test'"
+  },
+  "engines": {
+    "node": "10.0.0"
   },
   "author": "",
   "license": "ISC",
