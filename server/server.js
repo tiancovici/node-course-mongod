@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -6,16 +8,14 @@ const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
-const port = process.env.PORT || 4200;
 
+let port = process.env.PORT;
 
 let app = express();
 
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-
-   console.log('inside /todos');
    console.log(req.body.text);
    let todo = new Todo({
       text: req.body.text
@@ -90,6 +90,7 @@ app.patch('/todos/:id', (req, res) => {
    let body = _.pick(req.body, ['text', 'completed']);
    //Validate the id
    if(!ObjectID.isValid(id)) {
+      console.log('invalid id');
       //if not valid send 404
       return res.status(404).send();
    }
@@ -106,6 +107,7 @@ app.patch('/todos/:id', (req, res) => {
    // Find and update
    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
       if(!todo) {
+         console.log('not found id');
          res.status(404).send();
       }
       else {
