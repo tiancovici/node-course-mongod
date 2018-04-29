@@ -1,10 +1,10 @@
-
-let express = require('express');
-let bodyParser = require('body-parser');
-let {ObjectID} = require('mongodb');
-let {mongoose} = require('./db/mongoose');
-let {Todo} = require('./models/todo');
-let {User} = require('./models/user');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
+const {mongoose} = require('./db/mongoose');
+const {Todo} = require('./models/todo');
+const {User} = require('./models/user');
 
 const port = process.env.PORT || 4200;
 
@@ -85,6 +85,35 @@ app.delete('/todos/:id', (req, res) => {
 
 });
 
+app.patch('/todos/:id', (req, res) => {
+   let id = req.params.id;
+   let body = _.pick(req.body, ['text', 'completed']);
+   //Validate the id
+   if(!ObjectID.isValid(id)) {
+      //if not valid send 404
+      return res.status(404).send();
+   }
+
+   // Update complete based on complete property
+   if(_.isBoolean(body.completed) && body.completed){
+      body.completedAt = new Date().getTime();
+   }
+   else {
+      body.completed = false;
+      body.completedAt = null;
+   }
+
+   // Find and update
+   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+      if(!todo) {
+         res.status(404).send();
+      }
+      else {
+         res.send({todo})
+      }
+   }).catch((e)=> res.status(400).send());
+
+})
 
 app.listen(port, () => {
    console.log(`Started on port ${port}`);
