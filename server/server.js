@@ -6,7 +6,7 @@ let {mongoose} = require('./db/mongoose');
 let {Todo} = require('./models/todo');
 let {User} = require('./models/user');
 
-const port = process.env.port || 4200;
+const port = process.env.PORT || 4200;
 
 
 let app = express();
