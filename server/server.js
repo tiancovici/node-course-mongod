@@ -28,7 +28,24 @@ app.post('/todos', (req, res) => {
       res.status(400).send(e);
    });
 
-})
+});
+
+// Post /users
+app.post('/users', (req, res) => {
+   let body = _.pick(req.body, ['email', 'password']);
+   let user = new User(body);
+
+   user.save().then((user) => {
+      return user.generateAuthToken()
+   }).then((token) => {
+      res.header('x-auth', token).send(user);
+   })
+   .catch(
+      (e)=> res.status(400).send(e)
+   )
+
+});
+
 
 app.get('/todos', (req, res) => {
    Todo.find().then(
@@ -37,7 +54,7 @@ app.get('/todos', (req, res) => {
    },
    (e) => res.status(400).send(e)
    );
-})
+});
 
 // GET /todo/12341234
 app.get('/todos/:id', (req, res) => {
@@ -61,7 +78,7 @@ app.get('/todos/:id', (req, res) => {
          res.status(400).send()
       });
    }
-})
+});
 
 app.delete('/todos/:id', (req, res) => {
    //Get the id
@@ -115,7 +132,7 @@ app.patch('/todos/:id', (req, res) => {
       }
    }).catch((e)=> res.status(400).send());
 
-})
+});
 
 app.listen(port, () => {
    console.log(`Started on port ${port}`);
