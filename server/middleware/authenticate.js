@@ -5,7 +5,6 @@ let authenticate = (req, res, next) => {
 
   User.findByToken(token).then((user) => {
     if(!user) {
-      console.log('Couldn\'t find user');
       return Promise.reject;
     }
     // Store data to pass to /users/me

@@ -16,48 +16,27 @@ let app = express();
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
-   console.log(req.body.text);
-   let todo = new Todo({
-      text: req.body.text
-   })
-
-   todo.save().then((doc) => {
-      res.send(doc);
-   },
-   (e) => {
-      res.status(400).send(e);
-   });
-
-});
-///////////////
-//   Users   //
-///////////////
-
-// Post /users
-app.post('/users', (req, res) => {
-   let body = _.pick(req.body, ['email', 'password']);
-   let user = new User(body);
-
-   user.save().then((user) => {
-      return user.generateAuthToken()
-   }).then((token) => {
-      res.header('x-auth', token).send(user);
-   })
-   .catch(
-      (e)=> res.status(400).send(e)
-   )
-
-});
-
-
-
-app.get('/users/me', authenticate, (req, res) => {
-  res.send(req.user);
-});
 ///////////////
 //   Todos   //
 ///////////////
+
+// POST - add todos
+app.post('/todos', (req, res) => {
+  console.log(req.body.text);
+  let todo = new Todo({
+    text: req.body.text
+  })
+
+  todo.save().then((doc) => {
+    res.send(doc);
+  },
+  (e) => {
+    res.status(400).send(e);
+  });
+
+});
+
+// GET - get specific todos
 app.get('/todos', (req, res) => {
    Todo.find().then(
    (todos) => {
@@ -67,7 +46,6 @@ app.get('/todos', (req, res) => {
    );
 });
 
-// GET /todo/12341234
 app.get('/todos/:id', (req, res) => {
    let id = req.params.id;
    console.log(id);
@@ -91,6 +69,7 @@ app.get('/todos/:id', (req, res) => {
    }
 });
 
+// DELETE - delete specific todos
 app.delete('/todos/:id', (req, res) => {
    //Get the id
    let id = req.params.id;
@@ -113,6 +92,7 @@ app.delete('/todos/:id', (req, res) => {
 
 });
 
+// PATCH - update specific todos
 app.patch('/todos/:id', (req, res) => {
    let id = req.params.id;
    let body = _.pick(req.body, ['text', 'completed']);
@@ -143,6 +123,45 @@ app.patch('/todos/:id', (req, res) => {
       }
    }).catch((e)=> res.status(400).send());
 
+});
+
+///////////////
+//   Users   //
+///////////////
+
+// Post /users
+app.post('/users', (req, res) => {
+  let body = _.pick(req.body, ['email', 'password']);
+  let user = new User(body);
+
+  user.save().then((user) => {
+    return user.generateAuthToken()
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  })
+  .catch(
+  (e)=> res.status(400).send(e)
+  )
+
+});
+
+
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
+
+// POST /users/login {email, password}
+app.post('/users/login', (req, res) => {
+  let body = _.pick(req.body, ['email', 'password']);
+  User.findByCredentials(body.email, body.password).then((user) => {
+    return user.generateAuthToken().then((token) => {
+      res.header('x-auth', token).send(user);
+    });
+  }).catch((e)=> {
+    console.log(e);
+    res.status(400).send();
+  })
 });
 
 app.listen(port, () => {
