@@ -4,7 +4,9 @@ const jwt = require('jsonwebtoken');
 const _ = require( 'lodash');
 const bcrypt = require('bcryptjs');
 
-
+/////////////
+// Schema  //
+/////////////
 let UserSchema = new mongoose.Schema({
    email: {
       type: String,
@@ -33,7 +35,9 @@ let UserSchema = new mongoose.Schema({
       }
    }]
 });
-
+/////////////
+// Methods //
+/////////////
 UserSchema.methods.toJSON = function () {
   let user = this;
   let userObject = user.toObject();
@@ -52,7 +56,9 @@ UserSchema.methods.generateAuthToken = function () {
       return token;
    });
 };
-
+/////////////
+// Statics //
+/////////////
 UserSchema.statics.findByToken = function (token) {
   let User = this;
   let decoded;
@@ -92,6 +98,18 @@ UserSchema.statics.findByCredentials = function(email, password) {
   });
 };
 
+UserSchema.methods.removeToken = function(token) {
+  let user = this;
+  return user.update({
+    $pull: {
+      tokens: {token}
+    }
+  });
+};
+
+////////////////
+// Middleware //
+////////////////
 UserSchema.pre('save', function(next) {
   let user = this;
   if(user.isModified('password')) {

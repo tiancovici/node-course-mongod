@@ -48,7 +48,6 @@ app.get('/todos', (req, res) => {
 
 app.get('/todos/:id', (req, res) => {
    let id = req.params.id;
-   console.log(id);
    // Vald id using isValid
    if(!ObjectID.isValid(id)){
       //404 - send back empty send
@@ -129,7 +128,7 @@ app.patch('/todos/:id', (req, res) => {
 //   Users   //
 ///////////////
 
-// Post /users
+// Post /users - Sign up
 app.post('/users', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
   let user = new User(body);
@@ -144,14 +143,12 @@ app.post('/users', (req, res) => {
   )
 
 });
-
-
-
+// GET - return user
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
 
-// POST /users/login {email, password}
+// POST /users/login - Login
 app.post('/users/login', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
   User.findByCredentials(body.email, body.password).then((user) => {
@@ -159,9 +156,17 @@ app.post('/users/login', (req, res) => {
       res.header('x-auth', token).send(user);
     });
   }).catch((e)=> {
-    console.log(e);
     res.status(400).send();
   })
+});
+
+// Delete - Logging Out
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  });
 });
 
 app.listen(port, () => {
