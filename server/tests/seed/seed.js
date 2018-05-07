@@ -5,7 +5,7 @@ const {User} = require('./../../models/user');
 
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
-const secret = 'abc123';
+const secret = process.env.JWT_SECRET;
 const users = [{
   //Valid auth token
   _id: userOneId,
